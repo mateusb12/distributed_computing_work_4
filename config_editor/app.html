@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Layout</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 50px;
+            width: 300px;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <input type="file" id="fileInput">
+    </div>
+    <div>
+        <label for="userAmount">User Amount</label>
+        <select id="userAmount">
+            <option value="10">10</option>
+            <option value="100">100</option>
+            <option value="500" selected>500</option>
+        </select>
+    </div>
+    <div>
+        <label for="redisService">Redis service</label>
+        <select id="redisService">
+            <option value="enabled">Enabled</option>
+            <option value="disabled" selected>Disabled</option>
+        </select>
+    </div>
+    <div>
+        <label for="apiTechnology">API technology</label>
+        <select id="apiTechnology">
+            <option value="python">Python</option>
+            <option value="ruby" selected>Ruby</option>
+        </select>
+    </div>
+    <div>
+        <button id="submit">Submit</button>
+    </div>
+</div>
+</body>
+
+<script>
+    function updateDropdowns(data) {
+        // Find the select element
+        const userAmountSelect = document.getElementById('userAmount');
+
+        // Check if the option already exists
+        let optionExists = false;
+        for (let option of userAmountSelect.options) {
+            if (option.value === data.user_amount) {
+                optionExists = true;
+                break;
+            }
+        }
+
+        // Set the value if it exists, add new option if it doesn't
+        if (optionExists) {
+            userAmountSelect.value = data.user_amount;
+        } else {
+            // This creates a new option element and appends it to the select if not present
+            const newOption = new Option(data.user_amount, data.user_amount);
+            userAmountSelect.add(newOption);
+            userAmountSelect.value = data.user_amount;
+        }
+
+        const redisServiceSelect = document.getElementById('redisService');
+        redisServiceSelect.value = data.redis_enabled ? 'enabled' : 'disabled';
+
+        const apiTechnologySelect = document.getElementById('apiTechnology');
+        if (data.api_technology) {
+            apiTechnologySelect.value = data.api_technology;
+        }
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+
+        if (!file) {
+            // If you want, you can still keep this alert as it's a direct user action response.
+            alert('Please select a file.');
+            return;
+        }
+
+        // Prepare the file to be sent
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Send a POST request to the Flask server with the file
+        fetch('http://localhost:5000/upload', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                updateDropdowns(data);
+            })
+            .catch(error => {
+                // Log the error to the console instead of alerting it.
+                console.error('Error:', error);
+            });
+    });
+
+    document.getElementById('submit').addEventListener('click', function () {
+        const userAmountSelect = document.getElementById('userAmount');
+        const redisServiceSelect = document.getElementById('redisService');
+        const apiTechnologySelect = document.getElementById('apiTechnology');
+
+        const formData = new FormData();
+        formData.append('userAmount', userAmountSelect.value);
+        formData.append('redisService', redisServiceSelect.value);
+        formData.append('apiTechnology', apiTechnologySelect.value);
+
+        fetch('http://localhost:5000/update_yaml', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+</script>
+
+
+</html>
+
+

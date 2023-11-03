@@ -1,0 +1,9 @@
+Teste ID, Número de Usuários Virtuais, Versão do Extrator (Python/Ruby), Uso do Cache (Com/Sem), Média do Tempo de Resposta, Mediana do Tempo de Resposta, Percentil 90% do Tempo de Resposta
+1,10,Python,Com,,,
+2,10,Ruby,Com,,,
+3,10,Python,Sem,,,
+4,10,Ruby,Sem,,,
+5,50,Python,Com,,,
+6,50,Ruby,Com,,,
+7,50,Python,Sem,,,
+8,50,Ruby,Sem,,,
