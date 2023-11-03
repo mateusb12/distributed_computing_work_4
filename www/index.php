@@ -131,7 +131,7 @@
         <input class="button" type="submit" value="Extract Links">
       </form>
     </section>
-    
+
     <?php if(isset($err)): ?>
       <section>
         <h2>Error</h2>

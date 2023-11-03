@@ -2,12 +2,13 @@ version: '3.4'
 
 services:
   api:
-    build: ./python_api
+    build: ./ruby_api
     environment:
       - USER_AMOUNT=10
+      - REDIS_URL=redis://redis:6379
     image: linkextractor-api:step5-python
     ports:
-      - "5000:5000"
+      - "5000:4567"
     depends_on:
       redis:
         condition: service_healthy
@@ -39,7 +40,7 @@ services:
   web:
     build: ./www
     environment:
-      - API_ENDPOINT=http://api:5000/api/
+      - API_ENDPOINT=http://api:4567/api/
     image: linkextractor-web:step5-php
     ports:
       - "80:80"
