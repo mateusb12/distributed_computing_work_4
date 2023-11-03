@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 import json
+import logging
+
 from flask import Flask, request
 from linkextractor import extract_links
 import fix_python_imports
 from get_redis_connection import get_redis_connection
 
-app = Flask(__name__)
 redis_conn = get_redis_connection()
+app = Flask(__name__)
 
 
 @app.route("/hello_world")
@@ -22,6 +24,7 @@ def index():
 
 @app.route("/api/<path:url>")
 def api(url):
+    logging.info("Got a request for {}".format(url))
     qs = request.query_string.decode("utf-8")
     if qs != "":
         url += "?" + qs
@@ -29,6 +32,7 @@ def api(url):
     json_links = None
     if redis_conn:
         json_links = redis_conn.get(url)
+        print("Got links from Redis")
 
     if not json_links:
         links = extract_links(url)

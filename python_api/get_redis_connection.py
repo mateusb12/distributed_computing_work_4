@@ -10,3 +10,12 @@ def get_redis_connection() -> redis.client.Redis or None:
     except (ConnectionError, redis.exceptions.RedisError):
         redis_conn = None
     return redis_conn
+
+
+def __main():
+    test_conn = get_redis_connection()
+    return
+
+
+if __name__ == '__main__':
+    __main()

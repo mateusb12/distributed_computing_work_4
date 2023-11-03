@@ -1,4 +1,5 @@
-from locust import HttpUser, TaskSet, task, between
+from locust import HttpUser, task, between
+import random
 
 URLs = [
     "https://www.globo.com/",
@@ -13,12 +14,11 @@ URLs = [
     "https://www.cnnbrasil.com.br/",
 ]
 
-
 class LinkExtractorUser(HttpUser):
     wait_time = between(1, 2)  # Espera entre 1 e 2 segundos entre tarefas
 
     @task
     def extract_links(self):
-        for url in URLs:
-            self.client.get("/", params={"url": url})
-
+        url = random.choice(URLs)  # Seleciona uma URL aleatória da lista
+        self.client.get("/", params={"url": url})
+        # self.client.get("/")

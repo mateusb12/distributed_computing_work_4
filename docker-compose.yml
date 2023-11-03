@@ -1,29 +1,45 @@
+version: '3.4'
+
 services:
   api:
     build: ./python_api
     environment:
-    - USER_AMOUNT=10
+      - USER_AMOUNT=10
     image: linkextractor-api:step5-python
     ports:
-    - 5000:5000
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  locust:
+    command: -f /mnt/locust/locustfile.py
+    depends_on:
+      - api
+    environment:
+      - LOCUST_FILE=/mnt/locust/locustfile.py
+      - LOCUST_HOST=http://web:80
+      - USER_AMOUNT=10
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locustfile.py:/mnt/locust/locustfile.py
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   web:
     build: ./www
     environment:
-    - API_ENDPOINT=http://api:5000/api/
+      - API_ENDPOINT=http://api:5000/api/
     image: linkextractor-web:step5-php
     ports:
-    - 80:80
-  locust:
-    depends_on:
-    - api
-    environment:
-    - LOCUST_FILE=/mnt/locust/locustfile.py
-    - LOCUST_HOST=http://web:80
-    - USER_AMOUNT=10
-    image: locustio/locust
-    ports:
-    - 8089:8089
-    volumes:
-    - ./locustfile.py:/locustfile.py
-    command: -f /locustfile.py
-version: '3'
+      - "80:80"
