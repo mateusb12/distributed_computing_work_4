@@ -1,12 +1,25 @@
 services:
   api:
-    build: ./ruby_api
+    build: ./python_api
     environment:
     - REDIS_URL=redis://redis:6379
-    - USER_AMOUNT=500
+    - USER_AMOUNT=10
     image: linkextractor-api:step5-python
     ports:
     - 5000:5000
+  locust:
+    depends_on:
+    - api
+    environment:
+    - LOCUST_FILE=/mnt/locust/locustfile.py
+    - LOCUST_HOST=http://web:80
+    - USER_AMOUNT=10
+    image: locustio/locust
+    ports:
+    - 8089:8089
+    volumes:
+    - ./locustfile.py:/locustfile.py
+    command: -f /locustfile.py
   redis:
     image: redis
   web:
