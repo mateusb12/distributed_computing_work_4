@@ -2,12 +2,15 @@ import redis
 
 
 def get_redis_connection() -> redis.client.Redis or None:
-    redis_host = "localhost"
+    # When running inside Docker, use "redis" as the hostname which is the service name defined in docker-compose.yml
+    redis_host = "redis"  # Changed from "localhost" to "redis"
     redis_port = 6379
     try:
         redis_conn = redis.StrictRedis(host=redis_host, port=redis_port, db=0, decode_responses=True)
         redis_conn.ping()  # Ping Redis to check if connection is alive
-    except (ConnectionError, redis.exceptions.RedisError):
+        print("Connected to Redis")
+    except (ConnectionError, redis.exceptions.RedisError) as e:
+        print(f"Failed to connect to Redis: {e}")
         redis_conn = None
     return redis_conn
 

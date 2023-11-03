@@ -32,7 +32,8 @@ def api(url):
     json_links = None
     if redis_conn:
         json_links = redis_conn.get(url)
-        print("Got links from Redis")
+    else:
+        return "Redis is not available", 500
 
     if not json_links:
         links = extract_links(url)
