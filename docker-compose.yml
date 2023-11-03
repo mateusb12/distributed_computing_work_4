@@ -2,11 +2,17 @@ services:
   api:
     build: ./python_api
     environment:
-    - REDIS_URL=redis://redis:6379
     - USER_AMOUNT=10
     image: linkextractor-api:step5-python
     ports:
     - 5000:5000
+  web:
+    build: ./www
+    environment:
+    - API_ENDPOINT=http://api:5000/api/
+    image: linkextractor-web:step5-php
+    ports:
+    - 80:80
   locust:
     depends_on:
     - api
@@ -20,13 +26,4 @@ services:
     volumes:
     - ./locustfile.py:/locustfile.py
     command: -f /locustfile.py
-  redis:
-    image: redis
-  web:
-    build: ./www
-    environment:
-    - API_ENDPOINT=http://api:5000/api/
-    image: linkextractor-web:step5-php
-    ports:
-    - 80:80
 version: '3'

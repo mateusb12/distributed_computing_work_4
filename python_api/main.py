@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 
-import os
 import json
 from flask import Flask, request
-
-# Conditionally import redis if REDIS_URL is set
-if 'REDIS_URL' in os.environ:
-    import redis
-    redis_conn = redis.from_url(os.environ["REDIS_URL"])
-else:
-    redis_conn = None
-
 from linkextractor import extract_links
+import fix_python_imports
+from get_redis_connection import get_redis_connection
 
 app = Flask(__name__)
+redis_conn = get_redis_connection()
+
+
+@app.route("/hello_world")
+def hello_world():
+    return "Hello World!"
+
 
 @app.route("/")
 def index():
     return "Usage: http://<hostname>[:<prt>]/api/<url>"
+
 
 @app.route("/api/<path:url>")
 def api(url):
@@ -25,26 +26,25 @@ def api(url):
     if qs != "":
         url += "?" + qs
 
-    jsonlinks = None
-    # Only use Redis if a connection was established
+    json_links = None
     if redis_conn:
-        jsonlinks = redis_conn.get(url)
-    
-    if not jsonlinks:
+        json_links = redis_conn.get(url)
+
+    if not json_links:
         links = extract_links(url)
-        jsonlinks = json.dumps(links, indent=2)
-        
-        # Only save to Redis if a connection was established
+        json_links = json.dumps(links, indent=2)
+
         if redis_conn:
-            redis_conn.set(url, jsonlinks)
+            redis_conn.set(url, json_links)
 
     response = app.response_class(
+        response=json_links,
         status=200,
-        mimetype="application/json",
-        response=jsonlinks
+        mimetype="application/json"
     )
 
     return response
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
