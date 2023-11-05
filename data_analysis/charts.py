@@ -10,77 +10,79 @@ def get_merged_file() -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def plot_charts(input_dataframe: pd.DataFrame):
+def english_to_portuguese_y_label(term: str) -> str:
+    term_table = {"Median Response Time": "Mediana do Tempo de Resposta (ms)",
+                  "95%": "Percentil 95%"}
+    return term_table[term]
+
+
+def plot_language_charts(input_dataframe: pd.DataFrame):
+    feature = 'Median Response Time'
+    feature_portuguese_y_label = english_to_portuguese_y_label(feature)
     disabled_cache_group = input_dataframe[input_dataframe['Cache'] == 'disabled']
-    disabled_cache_grouped = disabled_cache_group.groupby(['Cache', 'Language', 'Users'])[
-        'Median Response Time'].mean().reset_index()
+    disabled_cache_grouped = disabled_cache_group.groupby(['Cache', 'Language', 'Users'])[feature].mean().reset_index()
 
     enabled_cache_group = input_dataframe[input_dataframe['Cache'] == 'enabled']
-    enabled_cache_grouped = enabled_cache_group.groupby(['Language', 'Users'])[
-        'Median Response Time'].mean().reset_index()
+    enabled_cache_grouped = enabled_cache_group.groupby(['Language', 'Users'])[feature].mean().reset_index()
     enabled_cache_grouped['Cache'] = 'enabled'
 
     plt.figure(figsize=(14, 7))
 
     ax1 = plt.subplot(1, 2, 1)
-    sns.barplot(x='Users', y='Median Response Time', hue='Language', data=disabled_cache_grouped, palette='muted',
+    sns.barplot(x='Users', y=feature, hue='Language', data=disabled_cache_grouped, palette='muted',
                 edgecolor='black', errorbar=None, zorder=3)
     plt.title('Cache Desabilitado')
     plt.xlabel('Número de Usuários')
-    plt.ylabel('Tempo Médio de Resposta (ms)')
+    plt.ylabel(feature_portuguese_y_label)
     plt.legend(title='Linguagem')
     ax1.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.7, zorder=0)
 
     ax2 = plt.subplot(1, 2, 2)
-    sns.barplot(x='Users', y='Median Response Time', hue='Language', data=enabled_cache_grouped, palette='muted',
+    sns.barplot(x='Users', y=feature, hue='Language', data=enabled_cache_grouped, palette='muted',
                 edgecolor='black', errorbar=None, zorder=3)
     plt.title('Cache Habilitado')
     plt.xlabel('Número de Usuários')
-    plt.ylabel('Tempo Médio de Resposta (ms)')
+    plt.ylabel(feature_portuguese_y_label)
     plt.legend(title='Linguagem')
     ax2.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.7, zorder=0)
     plt.tight_layout()
     plt.show()
 
 
-
 def plot_cache_impact(input_dataframe: pd.DataFrame):
-    # Group the data by 'Cache', 'Language', and 'Users', then calculate the average median response time
-    grouped_data = input_dataframe.groupby(['Cache', 'Language', 'Users'])['Median Response Time'].mean().reset_index()
+    feature = 'Median Response Time'
+    feature_portuguese_label = english_to_portuguese_y_label(feature)
+    grouped_data = input_dataframe.groupby(['Cache', 'Language', 'Users'])[feature].mean().reset_index()
 
-    # Set up the figure for plotting
     plt.figure(figsize=(14, 7))
 
-    # Subplot for the impact of caching on Python
     plt.subplot(1, 2, 1)
     python_data = grouped_data[grouped_data['Language'] == 'python']
-    sns.barplot(x='Users', y='Median Response Time', hue='Cache',
-                 data=python_data, palette='Set1', edgecolor='black', errorbar=None)
+    sns.barplot(x='Users', y=feature, hue='Cache',
+                data=python_data, palette='Set1', edgecolor='black', errorbar=None, zorder=3)
     plt.title('Impacto do Cache no Python')
     plt.xlabel('Número de Usuários')
-    plt.ylabel('Tempo de Resposta Médio (ms)')
+    plt.ylabel(feature_portuguese_label)
     plt.legend(title='Configuração Cache')
     plt.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.7, zorder=0)
 
-    # Subplot for the impact of caching on Ruby
     plt.subplot(1, 2, 2)
     ruby_data = grouped_data[grouped_data['Language'] == 'ruby']
-    sns.barplot(x='Users', y='Median Response Time', hue='Cache',
-                 data=ruby_data, palette='Set2', edgecolor='black', errorbar=None)
+    sns.barplot(x='Users', y=feature, hue='Cache',
+                data=ruby_data, palette='Set2', edgecolor='black', errorbar=None, zorder=3)
     plt.title('Impacto do Cache no Ruby')
     plt.xlabel('Número de Usuários')
-    plt.ylabel('Tempo de Resposta Médio (ms)')
+    plt.ylabel(feature_portuguese_label)
     plt.legend(title='Configuração Cache')
     plt.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.7, zorder=0)
 
-    # Adjust the layout and display the plots
     plt.tight_layout()
     plt.show()
 
 
 def __main():
     df = get_merged_file()
-    plot_charts(df)
+    plot_language_charts(df)
     plot_cache_impact(df)
 
 
