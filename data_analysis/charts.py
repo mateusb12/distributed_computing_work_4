@@ -81,8 +81,8 @@ def plot_cache_impact(input_dataframe: pd.DataFrame, feature: str = "Median Resp
 
 def __main():
     df = get_merged_file()
-    plot_language_charts(df, feature="Average Response Time")
-    plot_cache_impact(df, feature="Average Response Time")
+    plot_language_charts(df, feature="Median Response Time")
+    plot_cache_impact(df, feature="Median Response Time")
 
 
 if __name__ == '__main__':
