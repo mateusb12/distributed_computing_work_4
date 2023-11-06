@@ -12,12 +12,12 @@ def get_merged_file() -> pd.DataFrame:
 
 def english_to_portuguese_y_label(term: str) -> str:
     term_table = {"Median Response Time": "Mediana do Tempo de Resposta (ms)",
+                  "Average Response Time": "Média do Tempo de Resposta (ms)",
                   "95%": "Percentil 95%"}
     return term_table[term]
 
 
-def plot_language_charts(input_dataframe: pd.DataFrame):
-    feature = 'Median Response Time'
+def plot_language_charts(input_dataframe: pd.DataFrame, feature: str = "Median Response Time"):
     feature_portuguese_y_label = english_to_portuguese_y_label(feature)
     disabled_cache_group = input_dataframe[input_dataframe['Cache'] == 'disabled']
     disabled_cache_grouped = disabled_cache_group.groupby(['Cache', 'Language', 'Users'])[feature].mean().reset_index()
@@ -49,8 +49,7 @@ def plot_language_charts(input_dataframe: pd.DataFrame):
     plt.show()
 
 
-def plot_cache_impact(input_dataframe: pd.DataFrame):
-    feature = 'Median Response Time'
+def plot_cache_impact(input_dataframe: pd.DataFrame, feature: str = "Median Response Time"):
     feature_portuguese_label = english_to_portuguese_y_label(feature)
     grouped_data = input_dataframe.groupby(['Cache', 'Language', 'Users'])[feature].mean().reset_index()
 
@@ -82,8 +81,8 @@ def plot_cache_impact(input_dataframe: pd.DataFrame):
 
 def __main():
     df = get_merged_file()
-    plot_language_charts(df)
-    plot_cache_impact(df)
+    plot_language_charts(df, feature="Average Response Time")
+    plot_cache_impact(df, feature="Average Response Time")
 
 
 if __name__ == '__main__':
